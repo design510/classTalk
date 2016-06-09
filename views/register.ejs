@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册-班级说说</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style type="text/css">
+        .main-wrapper{margin-top:100px;}
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <% include header.ejs %>
+    <div class="container">
+        <form class="form-horizontal" style="margin:0 auto;width:460px;">
+            <div class="form-group" id="errorTip" style="display:none;">
+                <label for="" class="col-sm-2 control-label">&nbsp;</label>
+                <div class="col-sm-10 tip_content"></div>
+            </div>
+            <div class="form-group">
+                <label for="username" class="col-sm-2 control-label">用户名</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="username" placeholder="用户名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">密码</label>
+                <div class="col-sm-10">
+                    <input type="password" class="form-control" id="password" placeholder="密码">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-primary" id="Register">注册</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+<script type="text/javascript">
+//    $.post("/talk",{"name":"abc","pageamout":5,"page":0,"sort":1},function(result){
+//        console.log(result);
+//        console.log(result.result);
+//    });
+
+    function goRegister(){
+        var username = $("#username").val();
+        var password = $("#password").val();
+        $.post("/subReg",{"username":username,"password":password},function(result){
+            console.log(result);
+            if(result == "注册成功"){
+                window.location.href="/";
+            }else{
+                $("#errorTip").fadeIn().children(".tip_content").html(result).css({"color":"#f00"});
+            }
+        });
+    }
+
+    $("#username,#password").keydown(function(e){
+        if(e.keyCode == 13){
+            goRegister();
+        }
+    });
+    $("#Register").click(function(){
+        goRegister();
+    });
+    $(".form-group input").focus(function(){
+        $("#errorTip").fadeOut();
+    });
+</script>
+</body>
+</html>

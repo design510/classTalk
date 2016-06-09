@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的说说-班级说说</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style type="text/css">
+        .main-wrapper{margin-top:100px;}
+        .talk_imgavatar{display:block;width:110px;height:110px;}
+        .talk_imgavatar img{display:block;width:100%;}
+        .talk_des{word-break: break-all;}
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <% include header.ejs %>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8" id="talkListBox">
+            </div>
+            <div class="col-md-4">.col-md-4</div>
+        </div>
+    </div>
+</div>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/underscore-min-rename.js"></script>
+    <script type="text/template" id="talkListTemplate">
+        <div class="media">
+            <div class="media-left media-middle">
+                <a class="talk_imgavatar" href="{{= url }}" title="{{= username }}" target="_blank">
+                    <img class="img-thumbnail media-object" src="{{= avatar }}" alt="">
+                </a>
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading">{{= title }}</h4>
+                <p class="talk_des">{{= content }}</p>
+            </div>
+        </div>
+    </script>
+    <script type="text/javascript">
+        $(function(){
+            //sort为1按时间正序检索，为-1按时间逆序检索
+            var talkOptions = {"pagesize":5,"page":1,sort:-1};
+            $.get("/doMyTalk",talkOptions,function(results){
+                console.log(results);
+                $("#talkListBox").html("");
+                var compiled = _.template($("#talkListTemplate").html());
+                $.each(results.result,function(i,v){
+                    var html = compiled({"username": v.username,"url":"http://127.0.0.1:3002/talk/"+ v._id,"avatar": v.avatar,"title": v.title,"content": v.content});
+                    $("#talkListBox").append(html);
+                });
+
+            });
+        });
+    </script>
+</body>
+</html>
