@@ -18,5 +18,8 @@
     "gm": "^1.22.0",
     "mongodb": "^2.1.16",
     "silly-datetime": "^0.1.2"
+  },
+  "devDependencies": {
+    "socket.io": "^1.4.8"
   }
 }
