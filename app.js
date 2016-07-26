@@ -7,6 +7,8 @@ var cookieParser = require("cookie-parser");
 var session = require("express-session");
 var router = require("./controller/router.js");
 var multipart = require('connect-multiparty');
+var server = require("http").Server(app);
+var io = require("socket.io")(server);
 
 app.use(session({
     secret: 'keyboard cat',
@@ -39,6 +41,6 @@ app.post("/logout",router.doLogout);//退出登录
 app.post("/subTalk", router.dosubTalk);//发表说说
 app.get("/doMyTalk",router.doMyTalk);//我的说说
 
-app.listen(3002,"127.0.0.1");
+server.listen(3002,"127.0.0.1");
 
 
