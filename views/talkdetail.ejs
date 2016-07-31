@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= detail.title %>-班级说说</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <style type="text/css">
+        .main-wrapper{margin-top:100px;}
+        .detail_des{color:#999;font-size:14px;}
+        .detail_des span{margin-right:20px;}
+        .comment_box{padding-top:20px;padding-bottom:20px;}
+        ul.comment_list{list-style-type: none;}
+        ul.comment_list li{}
+        .comment_avatar h3{font-size:14px;font-weight: 600;}
+        .comment_avatar h3 span{font-weight:normal;}
+        .comment_time{font-size:12px;color:#999;}
+        .pulish_comment{width:50%;}
+        .pulish_comment #pulishComment{margin-top:20px;}
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <% include header.ejs %>
+    <div class="container">
+        <div class="row talk_list">
+            <div class="col-md-12">
+                <h1><%= detail.title %></h1>
+                <p class="detail_des">
+                    <span>作者: <%= detail.username %></span>
+                    <span>发布时间: <%= detail.updateTime %></span>
+                    <span>浏览次数: <%= viewcount %></span>
+                </p>
+                <div><%= detail.content %></div>
+                <div class="comment_box">
+                    <% if(comment != ''){ %>
+                    <ul class="comment_list">
+                        <% for(var i=0; i<comment.length; i++){ %>
+                        <li>
+                            <div class="comment_avatar">
+                                <!--<img src="" alt="">-->
+                                <h3><%= comment[i].username %>&nbsp;&nbsp;<span>评论说：</span></h3>
+                            </div>
+                            <div class="comment_content">
+                                <p class="comment_des"><%= comment[i].content %></p>
+                                <p class="comment_time"><%= comment[i].commentTime %></p>
+                            </div>
+                        </li>
+                        <% } %>
+                    </ul>
+                    <% } %>
+                    <div class="pulish_comment">
+                        <textarea class="form-control" rows="3" id="commentDes"></textarea>
+                        <button type="button" class="btn btn-primary" id="pulishComment">发表评论</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#pulishComment").click(function(){
+            var content = $("#commentDes").val();
+            var talkId = "<%= detail._id %>";
+            console.log(talkId);
+            $.post("/subComment",{"content":content,"talkId":talkId},function(results){
+                if(results){
+                    alert("评论成功");
+                }
+            });
+        });
+    })
+</script>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ var path = require("path");
 var fs = require("fs");
 var sd = require("silly-datetime");
 var gm = require('gm');
+var ObjectId = require('mongodb').ObjectID;
 
 
 var md5 = function(password){
@@ -19,6 +20,7 @@ var md5 = function(password){
 exports.showIndex = function(req,res,next){
     var login = req.session.login == "1" ? true : false;
     var username = req.session.login == "1" ? req.session.username : "";
+    var userId = req.session.userId;
     data.goAvatar(login,username,function(err,results){
         if(err){
             next();
@@ -31,7 +33,8 @@ exports.showIndex = function(req,res,next){
         res.render("index",{
             "username":username,
             "login":login,
-            "avatar":avatar
+            "avatar":avatar,
+            "userId":userId
         });
     });
 
@@ -40,14 +43,16 @@ exports.showIndex = function(req,res,next){
 exports.showLogin = function(req,res,next){
     res.render("login",{
         "username":req.session.login == "1" ? req.session.username : "",
-        "login":req.session.login == "1" ? true : false
+        "login":req.session.login == "1" ? true : false,
+        "userId":req.session.userId
     });
 };
 
 exports.showRegister = function(req,res,next){
     res.render("register",{
         "username":req.session.login == "1" ? req.session.username : "",
-        "login":req.session.login == "1" ? true : false
+        "login":req.session.login == "1" ? true : false,
+        "userId":req.session.userId
     });
 };
 
@@ -103,12 +108,13 @@ exports.subLogin = function(req,res,next){
                 next();
                 return;
             }
-            if(results == 2){
+            if(results.code == 2){
                 res.json("该用户不存在");
-            }else if(results == 3){
+            }else if(results.code == 3){
                 res.json("密码错误");
-            }else if(results == 1){
+            }else if(results.code == 1){
                 req.session.username = longinObj.username;
+                req.session.userId = results.userId;
                 req.session.login = "1";
                 var hour = 20000000;
                 req.session.cookie.expires = new Date(Date.now() + hour);
@@ -322,6 +328,8 @@ exports.doMyTalk = function(req,res,next){
     var sortObj = {};
     if(sort == 1 || sort == -1){
         sortObj = {"updateTime":sort};
+    }else{
+        sortObj = {"updateTime":-1};
     }
     data.getTalk({"username":username},{"pagesize":pagesize,"page":page},sortObj,function(err,results){
         if(err){
@@ -329,5 +337,108 @@ exports.doMyTalk = function(req,res,next){
             return;
         }
         res.json(results);
+    });
+};
+
+exports.doAllTalk = function(req,res,next){
+    // var username = req.session.username;
+    var pagesize = parseInt(req.query.pagesize);
+    var page = parseInt(req.query.page);
+    var sort = parseInt(req.query.sort);
+    var sortObj = {};
+    if(sort == 1 || sort == -1){
+        sortObj = {"updateTime":sort};
+    }else{
+        sortObj = {"updateTime":-1};
+    }
+    data.getTalk({},{"pagesize":pagesize,"page":page},sortObj,function(err,results){
+        if(err){
+            next();
+            return;
+        }
+        res.json(results);
+    });
+};
+
+exports.showTalkDetail = function(req,res,next){
+    var id = req.params.id;
+    if(req.session.login != "1"){
+        res.redirect("/login");
+        return;
+    }
+    var username = req.session.username;
+    var login = req.session.login;
+    data.getTalk({"_id":ObjectId(id)},{"pagesize":1,"page":1},{sort:1},function(err,results){
+        if(err){
+            next();
+            return;
+        }
+        var detail = results.result[0];
+        data.getComment({"talkId":id},{"pagesize":0,"page":1},{"commentTime":-1},function(err,results) {
+            if (err) {
+                next();
+                return;
+            }
+            var comment = results.result;
+            data.getViewCount({"talkId": id}, {"pagesize": 1, "page": 1}, {sort: 1}, function (err, results) {
+                if (err) {
+                    next();
+                    return;
+                }
+                //console.log(results);
+                res.render("talkdetail", {
+                    "detail": detail,
+                    "username": username,
+                    "login": login,
+                    "viewcount": results.result[0].viewcount,
+                    "comment": comment
+                });
+            });
+        });
+    });
+};
+
+//用户列表
+exports.showUserList = function(req,res,next){
+    if(req.session.login != "1"){
+        res.redirect("/login");
+        return;
+    }
+    var username = req.session.username;
+    data.getUserList({"username":{$ne:username}},{"pagesize":0,"page":1},{sort:1},function(err,results) {
+        if (err) {
+            next();
+            return;
+        }
+        var result = results.result;
+        //console.log(result);
+        res.render("userlist",{
+            "result": result
+        });
+    });
+};
+
+//发表评论
+exports.doSubComment = function(req,res,next){
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields) {
+        if(err){
+            console.log(err);
+            return;
+        }
+        var commentTime = sd.format(new Date(), 'YYYY-MM-DD HH:mm:ss');
+        var username = req.session.username;
+        fields.username = username;
+        fields.commentTime = commentTime;
+        //console.log(fields);
+        data.saveComment(fields,function(err,results){
+            if(err){
+                next();
+                return;
+            }
+            if(results){
+                res.send(true);
+            }
+        });
     });
 };

@@ -1,0 +1,162 @@
+<div class="customer_panel">
+    <div class="customer_head">
+        <h3 id="customerTitle">给好友发消息</h3>
+    </div>
+    <div class="customer_body">
+        <ul id="chatUl"></ul>
+    </div>
+    <div class="customer_footer">
+        <textarea class="form-control" rows="2" id="helpContent"></textarea>
+        <div class="bot_btn">
+            <button type="button" id="othername" class="btn btn-primary btn_left" data-toggle="modal" data-target=".bs-example-modal-sm">选择好友</button>
+            <button id="send" type="button" class="btn btn-primary btn_right" userId="<%= userId %>" myname="<%= username %>">发送</button>
+        </div>
+    </div>
+</div>
+<!--模态框-->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" id="myModal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridSystemModalLabel">请选择好友</h4>
+            </div>
+            <iframe src="/userlist" name="userListFrame" width="100%" height="150%" frameborder="0"></iframe>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <!--<button type="button" class="btn btn-primary">确定</button>-->
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    .customer_panel{
+        position: fixed;
+        right:0px;
+        bottom:0px;
+        z-index: 9;
+        width:260px;
+        border:1px solid #f1f1f1;
+    }
+    .customer_head{
+        width:100%;
+    }
+    .customer_head h3{
+        height:30px;
+        line-height: 30px;
+        font-size:14px;
+        text-align:center;
+        color:#333;
+        background:#f1f1f1;
+        margin:0;
+        padding:0;
+    }
+    .customer_body{
+        width:100%;
+        background:#fff;
+    }
+    .customer_body ul{
+        height:180px;
+        overflow: auto;
+        list-style-type: none;
+        border-bottom:1px solid #f1f1f1;
+        padding:10px;
+        margin:0px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+    .customer_body ul li{
+        font-size:12px;
+    }
+    .customer_body ul li.talk_mine{
+        text-align: right;
+    }
+    .customer_body ul li.talk_other{
+        text-align: left;
+    }
+    .customer_body ul li i{
+        font-style: normal;
+        font-size: 12px;
+        font-weight:600;
+    }
+    .customer_body ul li.talk_mine i{
+        margin-left:5px;
+    }
+    .customer_body ul li.talk_other i{
+        margin-right:5px;
+    }
+    .customer_footer{
+        width:100%;
+        padding:10px;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        background: #f1f1f1;
+    }
+    .customer_footer .bot_btn{
+        padding:10px;
+        overflow: hidden;
+    }
+    .bot_btn button.btn_left{
+        float:left;
+    }
+    .bot_btn button.btn_right{
+        float:right;
+    }
+
+</style>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+//    var socket = io.connect('http://127.0.0.1:3002');
+function getUser(event){
+    var fuserId = event.target.attributes["uid"].value;
+    var friendname = event.target.attributes["friendname"].value;
+    $("#send").attr({"fuserId":fuserId,"friendname":friendname});
+    $('#myModal').modal('hide');
+}
+$(function(){
+    var helpContent = '',friendname = '',fuserId = '';
+    var userId = $("#send").attr("userId");
+    var myname = $("#send").attr("myname");
+    var socket = io();
+    $("#helpContent").keydown(function(e){
+        var et=e||window.event;
+        var keyCode=et.charCode||et.keyCode;
+        if(keyCode==13){
+            if(window.event) {
+                window.event.returnValue = false;
+            }else {
+                e.preventDefault();//for firefox
+            }
+            goSend();
+        }
+    });
+    $("#send").click(function(){
+        goSend();
+    });
+    function goSend(){
+        helpContent = $("#helpContent").val();
+        friendname = $("#send").attr("friendname");
+        fuserId = $("#send").attr("fuserId");
+        if(fuserId == '' || fuserId == undefined){
+            alert("请选择好友");
+            return;
+        }
+        $("#customerTitle").html("与"+friendname+"聊天中……");
+        socket.emit('myclient', {
+            "content" :helpContent,
+            "friendname": friendname,
+            "userId": userId,
+            "myname": myname,
+            "fuserId": fuserId
+        });
+        $("#chatUl").append('<li class="talk_mine">'+ helpContent +'<i>: <%= username %></i></li>');
+        $("#helpContent").val('');
+    }
+    socket.on(userId, function (data) {
+        $("#chatUl").append('<li class="talk_other"><i>'+ data.myname+' :</i>'+ data.content +'</li>');
+//        console.log(data);
+    });
+});
+</script>

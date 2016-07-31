@@ -30,6 +30,8 @@ app.get("/register", router.showRegister);//注册
 app.get("/uploadnew", router.showUploadNew);//上传图像(新)
 app.get("/publishTalk",router.showPublish);//发表说说
 app.get("/myTalk",router.showMyTalk);//我的说说
+app.get("/talk/:id",router.showTalkDetail);//说说详情
+app.get("/userlist",router.showUserList);//用户列表
 
 //接口
 app.post("/subReg",router.subReg);//注册
@@ -40,7 +42,14 @@ app.get("/crop",router.docrop);//裁剪头像
 app.post("/logout",router.doLogout);//退出登录
 app.post("/subTalk", router.dosubTalk);//发表说说
 app.get("/doMyTalk",router.doMyTalk);//我的说说
+app.get("/doAllTalk",router.doAllTalk);//所有说说列表
+app.post("/subComment",router.doSubComment);//发表评论
 
-server.listen(3002,"127.0.0.1");
+server.listen(3002,"192.168.1.116");
 
-
+io.on('connection', function (socket) {
+    socket.on('myclient', function (data) {
+        //console.log(data);
+        io.emit(data.fuserId, data);
+    });
+});

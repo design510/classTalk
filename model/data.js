@@ -41,13 +41,13 @@ exports.goLogin = function(longinObj,callback){
         }
         var userInfo = results.result;
         if(userInfo.length == 0){
-            callback(null,"2");//返回2表示该用户不存在
+            callback(null,{code:"2",userId:""});//返回2表示该用户不存在
             return;
         }
         if(userInfo[0].password != longinObj.password){
-            callback(null,"3");//返回3表示密码错误
+            callback(null,{code:"3",userId:""});//返回3表示密码错误
         }else{
-            callback(null,"1");//返回1表示登录成功
+            callback(null,{code:"1",userId:userInfo[0]._id});//返回1表示登录成功
         }
     });
 };
@@ -81,6 +81,79 @@ exports.savaTalk = function(fields,callback){
             callback(err,null);
             return;
         }
+        //callback(null,true);
+        var viewcountObj = {
+            "viewcount": 0,
+            "talkId": String(result.ops[0]._id)
+        };
+        db.insertOne("viewcount",viewcountObj,function(err,result){
+            if(err){
+                callback(err,null);
+                return;
+            }
+            callback(null,true);
+        });
+    });
+};
+
+//编辑说说
+exports.editTalk = function(json1,json2,callback){
+    db.updatemany("talk",json1,json2,function(err,results){
+        if(err){
+            callback("编辑说说出错",null);
+            return;
+        }
+        callback(null,results);
+    });
+};
+
+//获取说说浏览次数
+exports.getViewCount = function(searchObj,pageObj,sortObj,callback){
+    db.find("viewcount",searchObj,pageObj,sortObj,function(err,results){
+        if(err){
+            callback("浏览次数查询出错",null);
+            return;
+        }
+        var count = results.result[0].viewcount + 1;
+        db.updatemany("viewcount",searchObj,{$set:{"viewcount":count},$currentDate:{"lastModified":true}},function(err,results1){
+            if(err){
+                callback("更新浏览次数出错",null);
+                return;
+            }
+            callback(null,results);
+        });
+    });
+};
+
+//获取所有用户列表
+exports.getUserList = function(searchObj,pageObj,sortObj,callback){
+    db.find("user",searchObj,pageObj,sortObj,function(err,results){
+        if(err){
+            callback("用户信息查询出错",null);
+            return;
+        }
+        callback(null,results);
+    });
+};
+
+//发表评论
+exports.saveComment = function(fields,callback){
+    db.insertOne("comment",fields,function(err,result){
+        if(err){
+            callback(err,null);
+            return;
+        }
         callback(null,true);
+    });
+};
+
+//查找评论
+exports.getComment = function(searchObj,pageObj,sortObj,callback){
+    db.find("comment",searchObj,pageObj,sortObj,function(err,results){
+        if(err){
+            callback("获取数据错误",null);
+            return;
+        }
+        callback(null,results);
     });
 };

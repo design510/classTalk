@@ -63,17 +63,16 @@ exports.find = function(collectionName,searchObj,pageObj,sortObj,callback){
         var pagesize = pageObj.pagesize;
         var page = pageObj.page;
         if(pagesize == undefined){
-            pagesize = 5;
+            pagesize = 0;
         }
-        if(page == undefined){
-            page = 0;
-        }else{
-            page = page - 1;
+        var pagenum = 0;
+        if(page != undefined){
+            pagenum = (parseInt(page) - 1) * parseInt(pagesize);
         }
         if(sortObj.sort == undefined){
             sortObj.sort = 1;
         }
-        var cursor =db.collection(collectionName).find(searchObj).limit(pagesize).skip(page).sort(sortObj);
+        var cursor =db.collection(collectionName).find(searchObj).limit(pagesize).skip(pagenum).sort(sortObj);
         db.collection(collectionName).count(searchObj).then(function(count) {
             cursor.each(function(err, doc){
                 if(err){
@@ -87,6 +86,7 @@ exports.find = function(collectionName,searchObj,pageObj,sortObj,callback){
                     var data = {};
                     data.result = result;
                     data.pagesize = pageObj.pagesize;
+                    data.pageNo = page;
                     data.count = count;
                     callback(null,data);
                     db.close();

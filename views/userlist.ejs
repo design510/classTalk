@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>好友列表-班级说说</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <style type="text/css">
+        .user_list{
+            list-style-type: none;
+            padding:10px 0px;
+        }
+        .user_list li{
+            height: 28px;
+            line-height: 28px;
+            font-size: 14px;
+            cursor:pointer;
+        }
+        .user_list li:hover{
+            color: #337ab7;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="container">
+            <ul class="user_list" id="userList">
+                <% for(var i=0;i<result.length;i++){ %>
+                    <li uid="<%= result[i]._id %>" friendname="<%= result[i].username %>"><%= result[i].username %></li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+    <script type="text/javascript" src="./js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $(function(){
+            $("#userList").click(function(){
+                parent.getUser(event);
+            });
+        });
+    </script>
+</body>
+</html>

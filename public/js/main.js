@@ -225,6 +225,8 @@ $(function () {
         if(200 === data.code) {
           $image.one('built.cropper', function () {
             // Revoke when load complete
+            console.log("load complete")
+            console.log(data)
           }).cropper('reset').cropper('replace', data.msg.url);
           console.log("上传成功");
         } else {

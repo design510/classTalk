@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>socket</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<input type="text" value="" placeholder="请输入聊天内容" id="content">
+<button id="send">发送</button>
+<script type="text/javascript">
+    var socket = io();
+    var sendBtn = document.getElementById("send");
+    sendBtn.onclick = function(){
+        var content = document.getElementById("content").value;
+        socket.emit("tiwen",content);
+    };
+
+    socket.on("huida",function(msg){
+        console.log("服务器回答："+ msg);
+    });
+</script>
+</body>
+</html>
