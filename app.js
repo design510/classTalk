@@ -45,7 +45,7 @@ app.get("/doMyTalk",router.doMyTalk);//我的说说
 app.get("/doAllTalk",router.doAllTalk);//所有说说列表
 app.post("/subComment",router.doSubComment);//发表评论
 
-server.listen(3002,"192.168.1.116");
+server.listen(3002,"192.168.1.104");
 
 io.on('connection', function (socket) {
     socket.on('myclient', function (data) {
