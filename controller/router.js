@@ -9,6 +9,7 @@ var fs = require("fs");
 var sd = require("silly-datetime");
 var gm = require('gm');
 var ObjectId = require('mongodb').ObjectID;
+const multiparty = require("multiparty");
 
 
 var md5 = function(password){
@@ -440,5 +441,34 @@ exports.doSubComment = function(req,res,next){
                 res.send(true);
             }
         });
+    });
+};
+
+//上传文件
+exports.showFile = function(req,res,next){
+    res.render("upload_file",{
+        "username":"123456@qq.com",
+        "login":"123456"
+    });
+};
+
+//上传文件接口
+exports.updateFile = function(req,res,next){
+    console.log(req);
+    const form = new multiparty.Form();
+    form.parse(req,function(err,fields,files){
+        // console.log(files);
+        var filename = files.up_file[0].originalFilename || path.basename(files.up_file[0].path);
+
+        // var extname = path.extname(filename);
+        // var newFileName = req.session.username + extname;
+        var uploadDir = path.normalize(__dirname + "/../uploads");
+        var targetPath = uploadDir + "/files/" + filename;
+
+        //复制文件
+        fs.createReadStream(files.up_file[0].path).pipe(fs.createWriteStream(targetPath));
+
+        req.session.updatefile = filename;
+        res.json({code: 200, msg: {url: 'http://' + req.headers.host + '/uploads/files/' + filename}});
     });
 };

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>上传图像-班级说说</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style type="text/css">
+        .main-wrapper{margin-top:100px;}
+    </style>
+</head>
+<body>
+<div class="main-wrapper">
+    <% include header.ejs %>
+    <div class="container">
+        <input type="file" id="updateFile" accept="*">
+    </div>
+</div>
+ <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+<script type="text/javascript">
+//    var inputFile = document.getElementById('updateFile');
+//    inputFile.addEventListener('change', function(event){
+//        console.log(event.target.files[0])
+//        var xhr = new XMLHttpRequest();
+//        var formData = new FormData();
+//        formData.append('up_file', event.target.files[0]);
+//        xhr.onreadystatechange = function(e){
+//            if(xhr.readyState == 4){
+//                if(xhr.status == 200){
+//                    console.log("上传成功")
+//                }else{
+//                    console.log("上传失败")
+//                }
+//            }else{
+//                console.log("上传失败")
+//            }
+//        }
+//        xhr.open("POST", "/uploadAvatar", true);
+//        xhr.send(formData);
+//    })
+
+    $(function(){
+        var inputFile = document.getElementById('updateFile');
+        inputFile.addEventListener('change', function(event) {
+            var formData = new FormData();
+            formData.append('up_file', event.target.files[0]);
+            console.log(event.target.files)
+            $.ajax({
+                url: '/updateFile',
+                type: 'POST',
+                data: formData,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (200 === data.code) {
+                        console.log("上传成功");
+                    } else {
+                        console.log("上传失败");
+                    }
+                },
+                error: function () {
+                    console.log("与服务器通信发生错误");
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

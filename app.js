@@ -32,6 +32,7 @@ app.get("/publishTalk",router.showPublish);//发表说说
 app.get("/myTalk",router.showMyTalk);//我的说说
 app.get("/talk/:id",router.showTalkDetail);//说说详情
 app.get("/userlist",router.showUserList);//用户列表
+app.get("/update_file",router.showFile);//上传文件
 
 //接口
 app.post("/subReg",router.subReg);//注册
@@ -44,8 +45,9 @@ app.post("/subTalk", router.dosubTalk);//发表说说
 app.get("/doMyTalk",router.doMyTalk);//我的说说
 app.get("/doAllTalk",router.doAllTalk);//所有说说列表
 app.post("/subComment",router.doSubComment);//发表评论
+app.post("/updateFile",router.updateFile);//上传文件
 
-server.listen(3002,"192.168.1.104");
+server.listen(3002,"192.168.1.106");
 
 io.on('connection', function (socket) {
     socket.on('myclient', function (data) {
